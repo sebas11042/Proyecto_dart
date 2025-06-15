@@ -14,5 +14,6 @@ dependencies:
   logging: ^1.2.0
 
 dev_dependencies:
+  test: ^1.24.0
   drift_dev: ^2.14.0
   build_runner: ^2.4.6
