@@ -1,4 +1,4 @@
-import 'package:backend_flutter/backend_flutter.dart';
+import 'package:backend_drift/backend_drift.dart';
 import 'package:test/test.dart';
 
 void main() {
