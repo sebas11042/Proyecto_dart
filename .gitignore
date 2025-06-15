@@ -1,0 +1,31 @@
+# Dart & Flutter
+.dart_tool/
+.packages
+.buildlog
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.melos_tool/
+.flutter-*
+.metadata
+
+# VS Code
+.vscode/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Web
+web/.dart_tool/
+web/.idea/
+
+# Flutter output
+*.lock
