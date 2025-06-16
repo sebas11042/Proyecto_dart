@@ -5,12 +5,12 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_router/shelf_router.dart';
 
-import 'package:backend_drift/db.dart'; // Asegurate que el nombre del proyecto en pubspec.yaml sea "backend_drift"
+import 'package:backend_drift/db.dart';
 
 final db = AppDatabase();
 
 void main() async {
-  // ✅ Insertar usuario demo si no hay ninguno
+  
   final usuariosExistentes = await db.obtenerUsuarios();
   if (usuariosExistentes.isEmpty) {
     final idUsuario = await db.insertarUsuario(
@@ -18,7 +18,6 @@ void main() async {
     );
     print('👤 Usuario demo creado con id $idUsuario');
 
-    // ✅ Insertar tarea demo para ese usuario
     await db.insertarTarea(
       TareasCompanion(
         titulo: Value('Investigar Drift'),
@@ -34,7 +33,8 @@ void main() async {
 
   final router = Router();
 
-  // Rutas API (dejá igual esto)
+  // ======= USUARIOS =======
+
   router.get('/api/usuarios', (Request request) async {
     final usuarios = await db.obtenerUsuarios();
     final json = usuarios.map((u) => {'id': u.id, 'nombre': u.nombre}).toList();
@@ -48,6 +48,24 @@ void main() async {
     final id = await db.insertarUsuario(usuario);
     return Response.ok(jsonEncode({'id': id}), headers: {'Content-Type': 'application/json'});
   });
+
+  router.put('/api/usuarios/<id>', (Request request, String id) async {
+    final body = await request.readAsString();
+    final data = jsonDecode(body);
+    final nombre = data['nombre'];
+
+    final rowsUpdated = await (db.update(db.usuarios)..where((u) => u.id.equals(int.parse(id))))
+        .write(UsuariosCompanion(nombre: Value(nombre)));
+
+    return Response.ok(jsonEncode({'updated': rowsUpdated}));
+  });
+
+  router.delete('/api/usuarios/<id>', (Request request, String id) async {
+    final rowsDeleted = await (db.delete(db.usuarios)..where((u) => u.id.equals(int.parse(id)))).go();
+    return Response.ok(jsonEncode({'deleted': rowsDeleted}));
+  });
+
+  // ======= TAREAS =======
 
   router.get('/api/tareas', (Request request) async {
     final tareas = await db.obtenerTareas();
@@ -74,6 +92,26 @@ void main() async {
     );
     final id = await db.insertarTarea(tarea);
     return Response.ok(jsonEncode({'id': id}), headers: {'Content-Type': 'application/json'});
+  });
+
+  router.put('/api/tareas/<id>', (Request request, String id) async {
+    final body = await request.readAsString();
+    final data = jsonDecode(body);
+
+    final rowsUpdated = await (db.update(db.tareas)..where((t) => t.id.equals(int.parse(id)))).write(
+      TareasCompanion(
+        titulo: Value(data['titulo']),
+        descripcion: Value(data['descripcion']),
+        estado: Value(data['estado']),
+      ),
+    );
+
+    return Response.ok(jsonEncode({'updated': rowsUpdated}));
+  });
+
+  router.delete('/api/tareas/<id>', (Request request, String id) async {
+    final rowsDeleted = await (db.delete(db.tareas)..where((t) => t.id.equals(int.parse(id)))).go();
+    return Response.ok(jsonEncode({'deleted': rowsDeleted}));
   });
 
   final handler = const Pipeline()
