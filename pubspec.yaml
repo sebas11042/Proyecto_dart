@@ -31,9 +31,12 @@ dependencies:
   flutter:
     sdk: flutter
   drift: ^2.14.0
-  sqlite3_flutter_libs: ^0.5.10
   path: ^1.8.3
-
+  sqlite3_flutter_libs: ^0.5.10
+  shelf: ^1.4.0
+  shelf_router: ^1.1.4
+  mime: ^1.0.4
+  shelf_multipart: ^1.0.0 # 👈 este es el que falta
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8

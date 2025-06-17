@@ -7,7 +7,7 @@ import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_multipart/multipart.dart';
 
-import 'package:backend_drift/db.dart';
+import 'db.dart';
 
 final db = AppDatabase();
 
