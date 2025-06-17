@@ -1,16 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:drift/drift.dart';
+import 'package:mime/mime.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_router/shelf_router.dart';
+import 'package:shelf_multipart/multipart.dart';
 
 import 'package:backend_drift/db.dart';
 
 final db = AppDatabase();
 
 void main() async {
-  
+  // Inserta demo si no existen usuarios
   final usuariosExistentes = await db.obtenerUsuarios();
   if (usuariosExistentes.isEmpty) {
     final idUsuario = await db.insertarUsuario(
@@ -23,6 +25,12 @@ void main() async {
         titulo: Value('Investigar Drift'),
         descripcion: Value('Revisar documentación oficial'),
         estado: Value('pendiente'),
+        fechaVencimiento: Value(DateTime.now().add(Duration(days: 5))),
+        prioridad: Value('alta'),
+        lugar: Value('Remoto'),
+        horas: Value(3.5),
+        imagenRuta: Value('img/demo.png'),
+        finalizada: Value(false),
         usuarioId: Value(idUsuario),
       ),
     );
@@ -33,7 +41,7 @@ void main() async {
 
   final router = Router();
 
-  // ======= USUARIOS =======
+  // =================== RUTAS PARA USUARIOS ===================
 
   router.get('/api/usuarios', (Request request) async {
     final usuarios = await db.obtenerUsuarios();
@@ -49,23 +57,7 @@ void main() async {
     return Response.ok(jsonEncode({'id': id}), headers: {'Content-Type': 'application/json'});
   });
 
-  router.put('/api/usuarios/<id>', (Request request, String id) async {
-    final body = await request.readAsString();
-    final data = jsonDecode(body);
-    final nombre = data['nombre'];
-
-    final rowsUpdated = await (db.update(db.usuarios)..where((u) => u.id.equals(int.parse(id))))
-        .write(UsuariosCompanion(nombre: Value(nombre)));
-
-    return Response.ok(jsonEncode({'updated': rowsUpdated}));
-  });
-
-  router.delete('/api/usuarios/<id>', (Request request, String id) async {
-    final rowsDeleted = await (db.delete(db.usuarios)..where((u) => u.id.equals(int.parse(id)))).go();
-    return Response.ok(jsonEncode({'deleted': rowsDeleted}));
-  });
-
-  // ======= TAREAS =======
+  // =================== RUTAS PARA TAREAS ===================
 
   router.get('/api/tareas', (Request request) async {
     final tareas = await db.obtenerTareas();
@@ -75,6 +67,12 @@ void main() async {
               'titulo': t.titulo,
               'descripcion': t.descripcion,
               'estado': t.estado,
+              'fechaVencimiento': t.fechaVencimiento.toIso8601String(),
+              'prioridad': t.prioridad,
+              'lugar': t.lugar,
+              'horas': t.horas,
+              'imagenRuta': t.imagenRuta,
+              'finalizada': t.finalizada,
               'usuarioId': t.usuarioId,
             })
         .toList();
@@ -88,36 +86,85 @@ void main() async {
       titulo: Value(data['titulo']),
       descripcion: Value(data['descripcion']),
       estado: Value(data['estado']),
+      fechaVencimiento: Value(DateTime.parse(data['fechaVencimiento'])),
+      prioridad: Value(data['prioridad']),
+      lugar: Value(data['lugar']),
+      horas: Value((data['horas'] as num).toDouble()),
+      imagenRuta: Value(data['imagenRuta']),
+      finalizada: Value(data['finalizada']),
       usuarioId: Value(data['usuarioId']),
     );
     final id = await db.insertarTarea(tarea);
     return Response.ok(jsonEncode({'id': id}), headers: {'Content-Type': 'application/json'});
   });
 
-  router.put('/api/tareas/<id>', (Request request, String id) async {
-    final body = await request.readAsString();
-    final data = jsonDecode(body);
+  // =================== SUBIDA DE IMAGEN ===================
 
-    final rowsUpdated = await (db.update(db.tareas)..where((t) => t.id.equals(int.parse(id)))).write(
-      TareasCompanion(
-        titulo: Value(data['titulo']),
-        descripcion: Value(data['descripcion']),
-        estado: Value(data['estado']),
-      ),
-    );
+  router.post('/api/imagen', (Request request) async {
+    final boundary = request.headers['content-type']?.split("boundary=").last;
+    if (boundary == null) {
+      return Response(400, body: 'Missing boundary');
+    }
 
-    return Response.ok(jsonEncode({'updated': rowsUpdated}));
+    final transformer = MimeMultipartTransformer(boundary);
+    final parts = await transformer.bind(request.read()).toList();
+
+    for (final part in parts) {
+      final contentDisposition = part.headers['content-disposition'];
+      if (contentDisposition != null && contentDisposition.contains('filename=')) {
+        final filename = RegExp(r'filename="([^"]*)"').firstMatch(contentDisposition)?.group(1);
+        if (filename == null) continue;
+
+        final directory = Directory('img');
+        if (!directory.existsSync()) {
+          directory.createSync(recursive: true);
+        }
+
+        final file = File('img/$filename');
+        final sink = file.openWrite();
+        await part.pipe(sink);
+        await sink.close();
+
+        return Response.ok(jsonEncode({'ruta': 'img/$filename'}), headers: {
+          'Content-Type': 'application/json',
+        });
+      }
+    }
+
+    return Response(400, body: 'No se encontró archivo válido');
   });
 
-  router.delete('/api/tareas/<id>', (Request request, String id) async {
-    final rowsDeleted = await (db.delete(db.tareas)..where((t) => t.id.equals(int.parse(id)))).go();
-    return Response.ok(jsonEncode({'deleted': rowsDeleted}));
-  });
+  // =================== LANZAR SERVIDOR ===================
 
   final handler = const Pipeline()
       .addMiddleware(logRequests())
+      .addMiddleware(corsMiddleware()) // 👈 Importante para evitar error CORS
       .addHandler(router);
 
   final server = await io.serve(handler, InternetAddress.anyIPv4, 8080);
   print('🚀 Servidor Drift activo en http://${server.address.address}:${server.port}');
+}
+
+// =================== MIDDLEWARE CORS ===================
+
+Middleware corsMiddleware() {
+  return (Handler handler) {
+    return (Request request) async {
+      if (request.method == 'OPTIONS') {
+        return Response.ok('', headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type',
+        });
+      }
+
+      final response = await handler(request);
+      return response.change(headers: {
+        ...response.headers,
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Origin, Content-Type',
+      });
+    };
+  };
 }
