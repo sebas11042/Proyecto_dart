@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' show Value;
+import 'package:taller_flutter/backend/db.dart';
 
 class FormularioTareaPage extends StatefulWidget {
-  final Map<String, dynamic>? tarea;
-  final List<Map<String, dynamic>> usuarios;
+  final Tarea? tarea;
+  final List<Usuario> usuarios;
 
   const FormularioTareaPage({super.key, this.tarea, required this.usuarios});
 
@@ -27,17 +29,15 @@ class _FormularioTareaPageState extends State<FormularioTareaPage> {
   void initState() {
     super.initState();
     final t = widget.tarea;
-    _tituloController = TextEditingController(text: t?['titulo'] ?? '');
-    _descripcionController = TextEditingController(text: t?['descripcion'] ?? '');
-    _lugarController = TextEditingController(text: t?['lugar'] ?? '');
-    _horasController = TextEditingController(text: t?['horas']?.toString() ?? '');
-    _imagenController = TextEditingController(text: t?['imagen'] ?? '');
-    _fechaVencimiento = t?['fechaVencimiento'] != null
-        ? DateTime.tryParse(t!['fechaVencimiento'])
-        : null;
-    _estado = t?['estado'] ?? false;
-    _prioridad = t?['prioridad'];
-    _usuarioId = t?['usuarioId'];
+    _tituloController = TextEditingController(text: t?.titulo ?? '');
+    _descripcionController = TextEditingController(text: t?.descripcion ?? '');
+    _lugarController = TextEditingController(text: t?.lugar ?? '');
+    _horasController = TextEditingController(text: t?.horas.toString() ?? '');
+    _imagenController = TextEditingController(text: t?.imagenRuta ?? '');
+    _fechaVencimiento = t?.fechaVencimiento;
+    _estado = t?.estado == 'finalizada';
+    _prioridad = t?.prioridad;
+    _usuarioId = t?.usuarioId;
   }
 
   @override
@@ -52,18 +52,20 @@ class _FormularioTareaPageState extends State<FormularioTareaPage> {
 
   void _guardar() {
     if (_formKey.currentState!.validate() && _fechaVencimiento != null) {
-      final nuevaTarea = {
-        'id': widget.tarea?['id'],
-        'titulo': _tituloController.text.trim(),
-        'descripcion': _descripcionController.text.trim(),
-        'fechaVencimiento': _fechaVencimiento!.toIso8601String(),
-        'estado': _estado,
-        'prioridad': _prioridad,
-        'lugar': _lugarController.text.trim(),
-        'horas': int.tryParse(_horasController.text),
-        'imagen': _imagenController.text.trim(),
-        'usuarioId': _usuarioId,
-      };
+      final nuevaTarea = TareasCompanion(
+        id: widget.tarea != null ? Value(widget.tarea!.id) : const Value.absent(),
+        titulo: Value(_tituloController.text.trim()),
+        descripcion: Value(_descripcionController.text.trim()),
+        fechaVencimiento: Value(_fechaVencimiento!),
+        estado: Value(_estado ? 'finalizada' : 'pendiente'),
+        prioridad: Value(_prioridad!),
+        lugar: Value(_lugarController.text.trim()),
+        horas: Value(double.tryParse(_horasController.text.trim()) ?? 0),
+        imagenRuta: Value(_imagenController.text.trim()),
+        finalizada: Value(_estado),
+        usuarioId: Value(_usuarioId!),
+      );
+
       Navigator.pop(context, nuevaTarea);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -144,12 +146,15 @@ class _FormularioTareaPageState extends State<FormularioTareaPage> {
                   labelText: 'Prioridad',
                   border: OutlineInputBorder(),
                 ),
-                items: ['Alta', 'Media', 'Baja']
-                    .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                    .toList(),
+                items: [
+                  DropdownMenuItem(value: 'alta', child: Text('Alta')),
+                  DropdownMenuItem(value: 'media', child: Text('Media')),
+                  DropdownMenuItem(value: 'baja', child: Text('Baja')),
+                ],
                 onChanged: (v) => setState(() => _prioridad = v),
                 validator: (v) => v == null ? 'Seleccione prioridad' : null,
               ),
+
               const SizedBox(height: 12),
               TextFormField(
                 controller: _lugarController,
@@ -184,14 +189,13 @@ class _FormularioTareaPageState extends State<FormularioTareaPage> {
                 ),
                 items: widget.usuarios
                     .map((u) => DropdownMenuItem<int>(
-                          value: u['id'] as int, // <-- ¡aquí está la clave!
-                          child: Text(u['nombre']),
+                          value: u.id,
+                          child: Text(u.nombre),
                         ))
                     .toList(),
                 onChanged: (v) => setState(() => _usuarioId = v),
                 validator: (v) => v == null ? 'Seleccione un usuario' : null,
               ),
-
               const SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: _guardar,

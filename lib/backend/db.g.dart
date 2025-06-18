@@ -11,17 +11,25 @@ class $UsuariosTable extends Usuarios with TableInfo<$UsuariosTable, Usuario> {
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
   static const VerificationMeta _nombreMeta = const VerificationMeta('nombre');
   @override
   late final GeneratedColumn<String> nombre = GeneratedColumn<String>(
-      'nombre', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+    'nombre',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   @override
   List<GeneratedColumn> get $columns => [id, nombre];
   @override
@@ -30,16 +38,20 @@ class $UsuariosTable extends Usuarios with TableInfo<$UsuariosTable, Usuario> {
   String get actualTableName => $name;
   static const String $name = 'usuarios';
   @override
-  VerificationContext validateIntegrity(Insertable<Usuario> instance,
-      {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<Usuario> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('nombre')) {
-      context.handle(_nombreMeta,
-          nombre.isAcceptableOrUnknown(data['nombre']!, _nombreMeta));
+      context.handle(
+        _nombreMeta,
+        nombre.isAcceptableOrUnknown(data['nombre']!, _nombreMeta),
+      );
     } else if (isInserting) {
       context.missing(_nombreMeta);
     }
@@ -52,10 +64,14 @@ class $UsuariosTable extends Usuarios with TableInfo<$UsuariosTable, Usuario> {
   Usuario map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Usuario(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      nombre: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}nombre'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      nombre: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}nombre'],
+      )!,
     );
   }
 
@@ -78,14 +94,13 @@ class Usuario extends DataClass implements Insertable<Usuario> {
   }
 
   UsuariosCompanion toCompanion(bool nullToAbsent) {
-    return UsuariosCompanion(
-      id: Value(id),
-      nombre: Value(nombre),
-    );
+    return UsuariosCompanion(id: Value(id), nombre: Value(nombre));
   }
 
-  factory Usuario.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
+  factory Usuario.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Usuario(
       id: serializer.fromJson<int>(json['id']),
@@ -101,10 +116,8 @@ class Usuario extends DataClass implements Insertable<Usuario> {
     };
   }
 
-  Usuario copyWith({int? id, String? nombre}) => Usuario(
-        id: id ?? this.id,
-        nombre: nombre ?? this.nombre,
-      );
+  Usuario copyWith({int? id, String? nombre}) =>
+      Usuario(id: id ?? this.id, nombre: nombre ?? this.nombre);
   Usuario copyWithCompanion(UsuariosCompanion data) {
     return Usuario(
       id: data.id.present ? data.id.value : this.id,
@@ -151,10 +164,7 @@ class UsuariosCompanion extends UpdateCompanion<Usuario> {
   }
 
   UsuariosCompanion copyWith({Value<int>? id, Value<String>? nombre}) {
-    return UsuariosCompanion(
-      id: id ?? this.id,
-      nombre: nombre ?? this.nombre,
-    );
+    return UsuariosCompanion(id: id ?? this.id, nombre: nombre ?? this.nombre);
   }
 
   @override
@@ -187,165 +197,236 @@ class $TareasTable extends Tareas with TableInfo<$TareasTable, Tarea> {
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
   static const VerificationMeta _tituloMeta = const VerificationMeta('titulo');
   @override
   late final GeneratedColumn<String> titulo = GeneratedColumn<String>(
-      'titulo', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _descripcionMeta =
-      const VerificationMeta('descripcion');
+    'titulo',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descripcionMeta = const VerificationMeta(
+    'descripcion',
+  );
   @override
   late final GeneratedColumn<String> descripcion = GeneratedColumn<String>(
-      'descripcion', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+    'descripcion',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _estadoMeta = const VerificationMeta('estado');
   @override
   late final GeneratedColumn<String> estado = GeneratedColumn<String>(
-      'estado', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _fechaVencimientoMeta =
-      const VerificationMeta('fechaVencimiento');
+    'estado',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fechaVencimientoMeta = const VerificationMeta(
+    'fechaVencimiento',
+  );
   @override
   late final GeneratedColumn<DateTime> fechaVencimiento =
-      GeneratedColumn<DateTime>('fecha_vencimiento', aliasedName, false,
-          type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _prioridadMeta =
-      const VerificationMeta('prioridad');
+      GeneratedColumn<DateTime>(
+        'fecha_vencimiento',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _prioridadMeta = const VerificationMeta(
+    'prioridad',
+  );
   @override
   late final GeneratedColumn<String> prioridad = GeneratedColumn<String>(
-      'prioridad', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+    'prioridad',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _lugarMeta = const VerificationMeta('lugar');
   @override
   late final GeneratedColumn<String> lugar = GeneratedColumn<String>(
-      'lugar', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+    'lugar',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _horasMeta = const VerificationMeta('horas');
   @override
   late final GeneratedColumn<double> horas = GeneratedColumn<double>(
-      'horas', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _imagenRutaMeta =
-      const VerificationMeta('imagenRuta');
+    'horas',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _imagenRutaMeta = const VerificationMeta(
+    'imagenRuta',
+  );
   @override
   late final GeneratedColumn<String> imagenRuta = GeneratedColumn<String>(
-      'imagen_ruta', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _finalizadaMeta =
-      const VerificationMeta('finalizada');
+    'imagen_ruta',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _finalizadaMeta = const VerificationMeta(
+    'finalizada',
+  );
   @override
   late final GeneratedColumn<bool> finalizada = GeneratedColumn<bool>(
-      'finalizada', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("finalizada" IN (0, 1))'),
-      defaultValue: Constant(false));
-  static const VerificationMeta _usuarioIdMeta =
-      const VerificationMeta('usuarioId');
+    'finalizada',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("finalizada" IN (0, 1))',
+    ),
+    defaultValue: Constant(false),
+  );
+  static const VerificationMeta _usuarioIdMeta = const VerificationMeta(
+    'usuarioId',
+  );
   @override
   late final GeneratedColumn<int> usuarioId = GeneratedColumn<int>(
-      'usuario_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES usuarios (id)'));
+    'usuario_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES usuarios (id)',
+    ),
+  );
   @override
   List<GeneratedColumn> get $columns => [
-        id,
-        titulo,
-        descripcion,
-        estado,
-        fechaVencimiento,
-        prioridad,
-        lugar,
-        horas,
-        imagenRuta,
-        finalizada,
-        usuarioId
-      ];
+    id,
+    titulo,
+    descripcion,
+    estado,
+    fechaVencimiento,
+    prioridad,
+    lugar,
+    horas,
+    imagenRuta,
+    finalizada,
+    usuarioId,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'tareas';
   @override
-  VerificationContext validateIntegrity(Insertable<Tarea> instance,
-      {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<Tarea> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('titulo')) {
-      context.handle(_tituloMeta,
-          titulo.isAcceptableOrUnknown(data['titulo']!, _tituloMeta));
+      context.handle(
+        _tituloMeta,
+        titulo.isAcceptableOrUnknown(data['titulo']!, _tituloMeta),
+      );
     } else if (isInserting) {
       context.missing(_tituloMeta);
     }
     if (data.containsKey('descripcion')) {
       context.handle(
+        _descripcionMeta,
+        descripcion.isAcceptableOrUnknown(
+          data['descripcion']!,
           _descripcionMeta,
-          descripcion.isAcceptableOrUnknown(
-              data['descripcion']!, _descripcionMeta));
+        ),
+      );
     } else if (isInserting) {
       context.missing(_descripcionMeta);
     }
     if (data.containsKey('estado')) {
-      context.handle(_estadoMeta,
-          estado.isAcceptableOrUnknown(data['estado']!, _estadoMeta));
+      context.handle(
+        _estadoMeta,
+        estado.isAcceptableOrUnknown(data['estado']!, _estadoMeta),
+      );
     } else if (isInserting) {
       context.missing(_estadoMeta);
     }
     if (data.containsKey('fecha_vencimiento')) {
       context.handle(
+        _fechaVencimientoMeta,
+        fechaVencimiento.isAcceptableOrUnknown(
+          data['fecha_vencimiento']!,
           _fechaVencimientoMeta,
-          fechaVencimiento.isAcceptableOrUnknown(
-              data['fecha_vencimiento']!, _fechaVencimientoMeta));
+        ),
+      );
     } else if (isInserting) {
       context.missing(_fechaVencimientoMeta);
     }
     if (data.containsKey('prioridad')) {
-      context.handle(_prioridadMeta,
-          prioridad.isAcceptableOrUnknown(data['prioridad']!, _prioridadMeta));
+      context.handle(
+        _prioridadMeta,
+        prioridad.isAcceptableOrUnknown(data['prioridad']!, _prioridadMeta),
+      );
     } else if (isInserting) {
       context.missing(_prioridadMeta);
     }
     if (data.containsKey('lugar')) {
       context.handle(
-          _lugarMeta, lugar.isAcceptableOrUnknown(data['lugar']!, _lugarMeta));
+        _lugarMeta,
+        lugar.isAcceptableOrUnknown(data['lugar']!, _lugarMeta),
+      );
     } else if (isInserting) {
       context.missing(_lugarMeta);
     }
     if (data.containsKey('horas')) {
       context.handle(
-          _horasMeta, horas.isAcceptableOrUnknown(data['horas']!, _horasMeta));
+        _horasMeta,
+        horas.isAcceptableOrUnknown(data['horas']!, _horasMeta),
+      );
     } else if (isInserting) {
       context.missing(_horasMeta);
     }
     if (data.containsKey('imagen_ruta')) {
       context.handle(
-          _imagenRutaMeta,
-          imagenRuta.isAcceptableOrUnknown(
-              data['imagen_ruta']!, _imagenRutaMeta));
+        _imagenRutaMeta,
+        imagenRuta.isAcceptableOrUnknown(data['imagen_ruta']!, _imagenRutaMeta),
+      );
     } else if (isInserting) {
       context.missing(_imagenRutaMeta);
     }
     if (data.containsKey('finalizada')) {
       context.handle(
-          _finalizadaMeta,
-          finalizada.isAcceptableOrUnknown(
-              data['finalizada']!, _finalizadaMeta));
+        _finalizadaMeta,
+        finalizada.isAcceptableOrUnknown(data['finalizada']!, _finalizadaMeta),
+      );
     }
     if (data.containsKey('usuario_id')) {
-      context.handle(_usuarioIdMeta,
-          usuarioId.isAcceptableOrUnknown(data['usuario_id']!, _usuarioIdMeta));
+      context.handle(
+        _usuarioIdMeta,
+        usuarioId.isAcceptableOrUnknown(data['usuario_id']!, _usuarioIdMeta),
+      );
     } else if (isInserting) {
       context.missing(_usuarioIdMeta);
     }
@@ -358,28 +439,50 @@ class $TareasTable extends Tareas with TableInfo<$TareasTable, Tarea> {
   Tarea map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Tarea(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      titulo: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}titulo'])!,
-      descripcion: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}descripcion'])!,
-      estado: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}estado'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      titulo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}titulo'],
+      )!,
+      descripcion: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}descripcion'],
+      )!,
+      estado: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}estado'],
+      )!,
       fechaVencimiento: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}fecha_vencimiento'])!,
-      prioridad: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}prioridad'])!,
-      lugar: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}lugar'])!,
-      horas: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}horas'])!,
-      imagenRuta: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}imagen_ruta'])!,
-      finalizada: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}finalizada'])!,
-      usuarioId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}usuario_id'])!,
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fecha_vencimiento'],
+      )!,
+      prioridad: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}prioridad'],
+      )!,
+      lugar: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}lugar'],
+      )!,
+      horas: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}horas'],
+      )!,
+      imagenRuta: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}imagen_ruta'],
+      )!,
+      finalizada: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}finalizada'],
+      )!,
+      usuarioId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}usuario_id'],
+      )!,
     );
   }
 
@@ -401,18 +504,19 @@ class Tarea extends DataClass implements Insertable<Tarea> {
   final String imagenRuta;
   final bool finalizada;
   final int usuarioId;
-  const Tarea(
-      {required this.id,
-      required this.titulo,
-      required this.descripcion,
-      required this.estado,
-      required this.fechaVencimiento,
-      required this.prioridad,
-      required this.lugar,
-      required this.horas,
-      required this.imagenRuta,
-      required this.finalizada,
-      required this.usuarioId});
+  const Tarea({
+    required this.id,
+    required this.titulo,
+    required this.descripcion,
+    required this.estado,
+    required this.fechaVencimiento,
+    required this.prioridad,
+    required this.lugar,
+    required this.horas,
+    required this.imagenRuta,
+    required this.finalizada,
+    required this.usuarioId,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -446,8 +550,10 @@ class Tarea extends DataClass implements Insertable<Tarea> {
     );
   }
 
-  factory Tarea.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
+  factory Tarea.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Tarea(
       id: serializer.fromJson<int>(json['id']),
@@ -481,37 +587,38 @@ class Tarea extends DataClass implements Insertable<Tarea> {
     };
   }
 
-  Tarea copyWith(
-          {int? id,
-          String? titulo,
-          String? descripcion,
-          String? estado,
-          DateTime? fechaVencimiento,
-          String? prioridad,
-          String? lugar,
-          double? horas,
-          String? imagenRuta,
-          bool? finalizada,
-          int? usuarioId}) =>
-      Tarea(
-        id: id ?? this.id,
-        titulo: titulo ?? this.titulo,
-        descripcion: descripcion ?? this.descripcion,
-        estado: estado ?? this.estado,
-        fechaVencimiento: fechaVencimiento ?? this.fechaVencimiento,
-        prioridad: prioridad ?? this.prioridad,
-        lugar: lugar ?? this.lugar,
-        horas: horas ?? this.horas,
-        imagenRuta: imagenRuta ?? this.imagenRuta,
-        finalizada: finalizada ?? this.finalizada,
-        usuarioId: usuarioId ?? this.usuarioId,
-      );
+  Tarea copyWith({
+    int? id,
+    String? titulo,
+    String? descripcion,
+    String? estado,
+    DateTime? fechaVencimiento,
+    String? prioridad,
+    String? lugar,
+    double? horas,
+    String? imagenRuta,
+    bool? finalizada,
+    int? usuarioId,
+  }) => Tarea(
+    id: id ?? this.id,
+    titulo: titulo ?? this.titulo,
+    descripcion: descripcion ?? this.descripcion,
+    estado: estado ?? this.estado,
+    fechaVencimiento: fechaVencimiento ?? this.fechaVencimiento,
+    prioridad: prioridad ?? this.prioridad,
+    lugar: lugar ?? this.lugar,
+    horas: horas ?? this.horas,
+    imagenRuta: imagenRuta ?? this.imagenRuta,
+    finalizada: finalizada ?? this.finalizada,
+    usuarioId: usuarioId ?? this.usuarioId,
+  );
   Tarea copyWithCompanion(TareasCompanion data) {
     return Tarea(
       id: data.id.present ? data.id.value : this.id,
       titulo: data.titulo.present ? data.titulo.value : this.titulo,
-      descripcion:
-          data.descripcion.present ? data.descripcion.value : this.descripcion,
+      descripcion: data.descripcion.present
+          ? data.descripcion.value
+          : this.descripcion,
       estado: data.estado.present ? data.estado.value : this.estado,
       fechaVencimiento: data.fechaVencimiento.present
           ? data.fechaVencimiento.value
@@ -519,10 +626,12 @@ class Tarea extends DataClass implements Insertable<Tarea> {
       prioridad: data.prioridad.present ? data.prioridad.value : this.prioridad,
       lugar: data.lugar.present ? data.lugar.value : this.lugar,
       horas: data.horas.present ? data.horas.value : this.horas,
-      imagenRuta:
-          data.imagenRuta.present ? data.imagenRuta.value : this.imagenRuta,
-      finalizada:
-          data.finalizada.present ? data.finalizada.value : this.finalizada,
+      imagenRuta: data.imagenRuta.present
+          ? data.imagenRuta.value
+          : this.imagenRuta,
+      finalizada: data.finalizada.present
+          ? data.finalizada.value
+          : this.finalizada,
       usuarioId: data.usuarioId.present ? data.usuarioId.value : this.usuarioId,
     );
   }
@@ -547,17 +656,18 @@ class Tarea extends DataClass implements Insertable<Tarea> {
 
   @override
   int get hashCode => Object.hash(
-      id,
-      titulo,
-      descripcion,
-      estado,
-      fechaVencimiento,
-      prioridad,
-      lugar,
-      horas,
-      imagenRuta,
-      finalizada,
-      usuarioId);
+    id,
+    titulo,
+    descripcion,
+    estado,
+    fechaVencimiento,
+    prioridad,
+    lugar,
+    horas,
+    imagenRuta,
+    finalizada,
+    usuarioId,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -612,15 +722,15 @@ class TareasCompanion extends UpdateCompanion<Tarea> {
     required String imagenRuta,
     this.finalizada = const Value.absent(),
     required int usuarioId,
-  })  : titulo = Value(titulo),
-        descripcion = Value(descripcion),
-        estado = Value(estado),
-        fechaVencimiento = Value(fechaVencimiento),
-        prioridad = Value(prioridad),
-        lugar = Value(lugar),
-        horas = Value(horas),
-        imagenRuta = Value(imagenRuta),
-        usuarioId = Value(usuarioId);
+  }) : titulo = Value(titulo),
+       descripcion = Value(descripcion),
+       estado = Value(estado),
+       fechaVencimiento = Value(fechaVencimiento),
+       prioridad = Value(prioridad),
+       lugar = Value(lugar),
+       horas = Value(horas),
+       imagenRuta = Value(imagenRuta),
+       usuarioId = Value(usuarioId);
   static Insertable<Tarea> custom({
     Expression<int>? id,
     Expression<String>? titulo,
@@ -649,18 +759,19 @@ class TareasCompanion extends UpdateCompanion<Tarea> {
     });
   }
 
-  TareasCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? titulo,
-      Value<String>? descripcion,
-      Value<String>? estado,
-      Value<DateTime>? fechaVencimiento,
-      Value<String>? prioridad,
-      Value<String>? lugar,
-      Value<double>? horas,
-      Value<String>? imagenRuta,
-      Value<bool>? finalizada,
-      Value<int>? usuarioId}) {
+  TareasCompanion copyWith({
+    Value<int>? id,
+    Value<String>? titulo,
+    Value<String>? descripcion,
+    Value<String>? estado,
+    Value<DateTime>? fechaVencimiento,
+    Value<String>? prioridad,
+    Value<String>? lugar,
+    Value<double>? horas,
+    Value<String>? imagenRuta,
+    Value<bool>? finalizada,
+    Value<int>? usuarioId,
+  }) {
     return TareasCompanion(
       id: id ?? this.id,
       titulo: titulo ?? this.titulo,
@@ -746,31 +857,32 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [usuarios, tareas];
 }
 
-typedef $$UsuariosTableCreateCompanionBuilder = UsuariosCompanion Function({
-  Value<int> id,
-  required String nombre,
-});
-typedef $$UsuariosTableUpdateCompanionBuilder = UsuariosCompanion Function({
-  Value<int> id,
-  Value<String> nombre,
-});
+typedef $$UsuariosTableCreateCompanionBuilder =
+    UsuariosCompanion Function({Value<int> id, required String nombre});
+typedef $$UsuariosTableUpdateCompanionBuilder =
+    UsuariosCompanion Function({Value<int> id, Value<String> nombre});
 
 final class $$UsuariosTableReferences
     extends BaseReferences<_$AppDatabase, $UsuariosTable, Usuario> {
   $$UsuariosTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<$TareasTable, List<Tarea>> _tareasRefsTable(
-          _$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(db.tareas,
-          aliasName: $_aliasNameGenerator(db.usuarios.id, db.tareas.usuarioId));
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.tareas,
+    aliasName: $_aliasNameGenerator(db.usuarios.id, db.tareas.usuarioId),
+  );
 
   $$TareasTableProcessedTableManager get tareasRefs {
-    final manager = $$TareasTableTableManager($_db, $_db.tareas)
-        .filter((f) => f.usuarioId.id.sqlEquals($_itemColumn<int>('id')!));
+    final manager = $$TareasTableTableManager(
+      $_db,
+      $_db.tareas,
+    ).filter((f) => f.usuarioId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_tareasRefsTable($_db));
     return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
+      manager.$state.copyWith(prefetchedData: cache),
+    );
   }
 }
 
@@ -784,29 +896,37 @@ class $$UsuariosTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
 
   ColumnFilters<String> get nombre => $composableBuilder(
-      column: $table.nombre, builder: (column) => ColumnFilters(column));
+    column: $table.nombre,
+    builder: (column) => ColumnFilters(column),
+  );
 
   Expression<bool> tareasRefs(
-      Expression<bool> Function($$TareasTableFilterComposer f) f) {
+    Expression<bool> Function($$TareasTableFilterComposer f) f,
+  ) {
     final $$TareasTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.tareas,
-        getReferencedColumn: (t) => t.usuarioId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$TareasTableFilterComposer(
-              $db: $db,
-              $table: $db.tareas,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.tareas,
+      getReferencedColumn: (t) => t.usuarioId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TareasTableFilterComposer(
+            $db: $db,
+            $table: $db.tareas,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return f(composer);
   }
 }
@@ -821,10 +941,14 @@ class $$UsuariosTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   ColumnOrderings<String> get nombre => $composableBuilder(
-      column: $table.nombre, builder: (column) => ColumnOrderings(column));
+    column: $table.nombre,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$UsuariosTableAnnotationComposer
@@ -843,41 +967,49 @@ class $$UsuariosTableAnnotationComposer
       $composableBuilder(column: $table.nombre, builder: (column) => column);
 
   Expression<T> tareasRefs<T extends Object>(
-      Expression<T> Function($$TareasTableAnnotationComposer a) f) {
+    Expression<T> Function($$TareasTableAnnotationComposer a) f,
+  ) {
     final $$TareasTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.tareas,
-        getReferencedColumn: (t) => t.usuarioId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$TareasTableAnnotationComposer(
-              $db: $db,
-              $table: $db.tareas,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.tareas,
+      getReferencedColumn: (t) => t.usuarioId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TareasTableAnnotationComposer(
+            $db: $db,
+            $table: $db.tareas,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return f(composer);
   }
 }
 
-class $$UsuariosTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $UsuariosTable,
-    Usuario,
-    $$UsuariosTableFilterComposer,
-    $$UsuariosTableOrderingComposer,
-    $$UsuariosTableAnnotationComposer,
-    $$UsuariosTableCreateCompanionBuilder,
-    $$UsuariosTableUpdateCompanionBuilder,
-    (Usuario, $$UsuariosTableReferences),
-    Usuario,
-    PrefetchHooks Function({bool tareasRefs})> {
+class $$UsuariosTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UsuariosTable,
+          Usuario,
+          $$UsuariosTableFilterComposer,
+          $$UsuariosTableOrderingComposer,
+          $$UsuariosTableAnnotationComposer,
+          $$UsuariosTableCreateCompanionBuilder,
+          $$UsuariosTableUpdateCompanionBuilder,
+          (Usuario, $$UsuariosTableReferences),
+          Usuario,
+          PrefetchHooks Function({bool tareasRefs})
+        > {
   $$UsuariosTableTableManager(_$AppDatabase db, $UsuariosTable table)
-      : super(TableManagerState(
+    : super(
+        TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -886,25 +1018,23 @@ class $$UsuariosTableTableManager extends RootTableManager<
               $$UsuariosTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$UsuariosTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> nombre = const Value.absent(),
-          }) =>
-              UsuariosCompanion(
-            id: id,
-            nombre: nombre,
-          ),
-          createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            required String nombre,
-          }) =>
-              UsuariosCompanion.insert(
-            id: id,
-            nombre: nombre,
-          ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> nombre = const Value.absent(),
+              }) => UsuariosCompanion(id: id, nombre: nombre),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String nombre,
+              }) => UsuariosCompanion.insert(id: id, nombre: nombre),
           withReferenceMapper: (p0) => p0
-              .map((e) =>
-                  (e.readTable(table), $$UsuariosTableReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$UsuariosTableReferences(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: ({tareasRefs = false}) {
             return PrefetchHooks(
@@ -915,60 +1045,65 @@ class $$UsuariosTableTableManager extends RootTableManager<
                 return [
                   if (tareasRefs)
                     await $_getPrefetchedData<Usuario, $UsuariosTable, Tarea>(
-                        currentTable: table,
-                        referencedTable:
-                            $$UsuariosTableReferences._tareasRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$UsuariosTableReferences(db, table, p0).tareasRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.usuarioId == item.id),
-                        typedResults: items)
+                      currentTable: table,
+                      referencedTable: $$UsuariosTableReferences
+                          ._tareasRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$UsuariosTableReferences(db, table, p0).tareasRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.usuarioId == item.id),
+                      typedResults: items,
+                    ),
                 ];
               },
             );
           },
-        ));
+        ),
+      );
 }
 
-typedef $$UsuariosTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $UsuariosTable,
-    Usuario,
-    $$UsuariosTableFilterComposer,
-    $$UsuariosTableOrderingComposer,
-    $$UsuariosTableAnnotationComposer,
-    $$UsuariosTableCreateCompanionBuilder,
-    $$UsuariosTableUpdateCompanionBuilder,
-    (Usuario, $$UsuariosTableReferences),
-    Usuario,
-    PrefetchHooks Function({bool tareasRefs})>;
-typedef $$TareasTableCreateCompanionBuilder = TareasCompanion Function({
-  Value<int> id,
-  required String titulo,
-  required String descripcion,
-  required String estado,
-  required DateTime fechaVencimiento,
-  required String prioridad,
-  required String lugar,
-  required double horas,
-  required String imagenRuta,
-  Value<bool> finalizada,
-  required int usuarioId,
-});
-typedef $$TareasTableUpdateCompanionBuilder = TareasCompanion Function({
-  Value<int> id,
-  Value<String> titulo,
-  Value<String> descripcion,
-  Value<String> estado,
-  Value<DateTime> fechaVencimiento,
-  Value<String> prioridad,
-  Value<String> lugar,
-  Value<double> horas,
-  Value<String> imagenRuta,
-  Value<bool> finalizada,
-  Value<int> usuarioId,
-});
+typedef $$UsuariosTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UsuariosTable,
+      Usuario,
+      $$UsuariosTableFilterComposer,
+      $$UsuariosTableOrderingComposer,
+      $$UsuariosTableAnnotationComposer,
+      $$UsuariosTableCreateCompanionBuilder,
+      $$UsuariosTableUpdateCompanionBuilder,
+      (Usuario, $$UsuariosTableReferences),
+      Usuario,
+      PrefetchHooks Function({bool tareasRefs})
+    >;
+typedef $$TareasTableCreateCompanionBuilder =
+    TareasCompanion Function({
+      Value<int> id,
+      required String titulo,
+      required String descripcion,
+      required String estado,
+      required DateTime fechaVencimiento,
+      required String prioridad,
+      required String lugar,
+      required double horas,
+      required String imagenRuta,
+      Value<bool> finalizada,
+      required int usuarioId,
+    });
+typedef $$TareasTableUpdateCompanionBuilder =
+    TareasCompanion Function({
+      Value<int> id,
+      Value<String> titulo,
+      Value<String> descripcion,
+      Value<String> estado,
+      Value<DateTime> fechaVencimiento,
+      Value<String> prioridad,
+      Value<String> lugar,
+      Value<double> horas,
+      Value<String> imagenRuta,
+      Value<bool> finalizada,
+      Value<int> usuarioId,
+    });
 
 final class $$TareasTableReferences
     extends BaseReferences<_$AppDatabase, $TareasTable, Tarea> {
@@ -980,12 +1115,15 @@ final class $$TareasTableReferences
   $$UsuariosTableProcessedTableManager get usuarioId {
     final $_column = $_itemColumn<int>('usuario_id')!;
 
-    final manager = $$UsuariosTableTableManager($_db, $_db.usuarios)
-        .filter((f) => f.id.sqlEquals($_column));
+    final manager = $$UsuariosTableTableManager(
+      $_db,
+      $_db.usuarios,
+    ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_usuarioIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
   }
 }
 
@@ -999,53 +1137,75 @@ class $$TareasTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
 
   ColumnFilters<String> get titulo => $composableBuilder(
-      column: $table.titulo, builder: (column) => ColumnFilters(column));
+    column: $table.titulo,
+    builder: (column) => ColumnFilters(column),
+  );
 
   ColumnFilters<String> get descripcion => $composableBuilder(
-      column: $table.descripcion, builder: (column) => ColumnFilters(column));
+    column: $table.descripcion,
+    builder: (column) => ColumnFilters(column),
+  );
 
   ColumnFilters<String> get estado => $composableBuilder(
-      column: $table.estado, builder: (column) => ColumnFilters(column));
+    column: $table.estado,
+    builder: (column) => ColumnFilters(column),
+  );
 
   ColumnFilters<DateTime> get fechaVencimiento => $composableBuilder(
-      column: $table.fechaVencimiento,
-      builder: (column) => ColumnFilters(column));
+    column: $table.fechaVencimiento,
+    builder: (column) => ColumnFilters(column),
+  );
 
   ColumnFilters<String> get prioridad => $composableBuilder(
-      column: $table.prioridad, builder: (column) => ColumnFilters(column));
+    column: $table.prioridad,
+    builder: (column) => ColumnFilters(column),
+  );
 
   ColumnFilters<String> get lugar => $composableBuilder(
-      column: $table.lugar, builder: (column) => ColumnFilters(column));
+    column: $table.lugar,
+    builder: (column) => ColumnFilters(column),
+  );
 
   ColumnFilters<double> get horas => $composableBuilder(
-      column: $table.horas, builder: (column) => ColumnFilters(column));
+    column: $table.horas,
+    builder: (column) => ColumnFilters(column),
+  );
 
   ColumnFilters<String> get imagenRuta => $composableBuilder(
-      column: $table.imagenRuta, builder: (column) => ColumnFilters(column));
+    column: $table.imagenRuta,
+    builder: (column) => ColumnFilters(column),
+  );
 
   ColumnFilters<bool> get finalizada => $composableBuilder(
-      column: $table.finalizada, builder: (column) => ColumnFilters(column));
+    column: $table.finalizada,
+    builder: (column) => ColumnFilters(column),
+  );
 
   $$UsuariosTableFilterComposer get usuarioId {
     final $$UsuariosTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.usuarioId,
-        referencedTable: $db.usuarios,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$UsuariosTableFilterComposer(
-              $db: $db,
-              $table: $db.usuarios,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
+      composer: this,
+      getCurrentColumn: (t) => t.usuarioId,
+      referencedTable: $db.usuarios,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsuariosTableFilterComposer(
+            $db: $db,
+            $table: $db.usuarios,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return composer;
   }
 }
@@ -1060,53 +1220,75 @@ class $$TareasTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   ColumnOrderings<String> get titulo => $composableBuilder(
-      column: $table.titulo, builder: (column) => ColumnOrderings(column));
+    column: $table.titulo,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   ColumnOrderings<String> get descripcion => $composableBuilder(
-      column: $table.descripcion, builder: (column) => ColumnOrderings(column));
+    column: $table.descripcion,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   ColumnOrderings<String> get estado => $composableBuilder(
-      column: $table.estado, builder: (column) => ColumnOrderings(column));
+    column: $table.estado,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   ColumnOrderings<DateTime> get fechaVencimiento => $composableBuilder(
-      column: $table.fechaVencimiento,
-      builder: (column) => ColumnOrderings(column));
+    column: $table.fechaVencimiento,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   ColumnOrderings<String> get prioridad => $composableBuilder(
-      column: $table.prioridad, builder: (column) => ColumnOrderings(column));
+    column: $table.prioridad,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   ColumnOrderings<String> get lugar => $composableBuilder(
-      column: $table.lugar, builder: (column) => ColumnOrderings(column));
+    column: $table.lugar,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   ColumnOrderings<double> get horas => $composableBuilder(
-      column: $table.horas, builder: (column) => ColumnOrderings(column));
+    column: $table.horas,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   ColumnOrderings<String> get imagenRuta => $composableBuilder(
-      column: $table.imagenRuta, builder: (column) => ColumnOrderings(column));
+    column: $table.imagenRuta,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   ColumnOrderings<bool> get finalizada => $composableBuilder(
-      column: $table.finalizada, builder: (column) => ColumnOrderings(column));
+    column: $table.finalizada,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   $$UsuariosTableOrderingComposer get usuarioId {
     final $$UsuariosTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.usuarioId,
-        referencedTable: $db.usuarios,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$UsuariosTableOrderingComposer(
-              $db: $db,
-              $table: $db.usuarios,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
+      composer: this,
+      getCurrentColumn: (t) => t.usuarioId,
+      referencedTable: $db.usuarios,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsuariosTableOrderingComposer(
+            $db: $db,
+            $table: $db.usuarios,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return composer;
   }
 }
@@ -1127,13 +1309,17 @@ class $$TareasTableAnnotationComposer
       $composableBuilder(column: $table.titulo, builder: (column) => column);
 
   GeneratedColumn<String> get descripcion => $composableBuilder(
-      column: $table.descripcion, builder: (column) => column);
+    column: $table.descripcion,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get estado =>
       $composableBuilder(column: $table.estado, builder: (column) => column);
 
   GeneratedColumn<DateTime> get fechaVencimiento => $composableBuilder(
-      column: $table.fechaVencimiento, builder: (column) => column);
+    column: $table.fechaVencimiento,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get prioridad =>
       $composableBuilder(column: $table.prioridad, builder: (column) => column);
@@ -1145,46 +1331,57 @@ class $$TareasTableAnnotationComposer
       $composableBuilder(column: $table.horas, builder: (column) => column);
 
   GeneratedColumn<String> get imagenRuta => $composableBuilder(
-      column: $table.imagenRuta, builder: (column) => column);
+    column: $table.imagenRuta,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<bool> get finalizada => $composableBuilder(
-      column: $table.finalizada, builder: (column) => column);
+    column: $table.finalizada,
+    builder: (column) => column,
+  );
 
   $$UsuariosTableAnnotationComposer get usuarioId {
     final $$UsuariosTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.usuarioId,
-        referencedTable: $db.usuarios,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$UsuariosTableAnnotationComposer(
-              $db: $db,
-              $table: $db.usuarios,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
+      composer: this,
+      getCurrentColumn: (t) => t.usuarioId,
+      referencedTable: $db.usuarios,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsuariosTableAnnotationComposer(
+            $db: $db,
+            $table: $db.usuarios,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return composer;
   }
 }
 
-class $$TareasTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $TareasTable,
-    Tarea,
-    $$TareasTableFilterComposer,
-    $$TareasTableOrderingComposer,
-    $$TareasTableAnnotationComposer,
-    $$TareasTableCreateCompanionBuilder,
-    $$TareasTableUpdateCompanionBuilder,
-    (Tarea, $$TareasTableReferences),
-    Tarea,
-    PrefetchHooks Function({bool usuarioId})> {
+class $$TareasTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TareasTable,
+          Tarea,
+          $$TareasTableFilterComposer,
+          $$TareasTableOrderingComposer,
+          $$TareasTableAnnotationComposer,
+          $$TareasTableCreateCompanionBuilder,
+          $$TareasTableUpdateCompanionBuilder,
+          (Tarea, $$TareasTableReferences),
+          Tarea,
+          PrefetchHooks Function({bool usuarioId})
+        > {
   $$TareasTableTableManager(_$AppDatabase db, $TareasTable table)
-      : super(TableManagerState(
+    : super(
+        TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -1193,68 +1390,71 @@ class $$TareasTableTableManager extends RootTableManager<
               $$TareasTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$TareasTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> titulo = const Value.absent(),
-            Value<String> descripcion = const Value.absent(),
-            Value<String> estado = const Value.absent(),
-            Value<DateTime> fechaVencimiento = const Value.absent(),
-            Value<String> prioridad = const Value.absent(),
-            Value<String> lugar = const Value.absent(),
-            Value<double> horas = const Value.absent(),
-            Value<String> imagenRuta = const Value.absent(),
-            Value<bool> finalizada = const Value.absent(),
-            Value<int> usuarioId = const Value.absent(),
-          }) =>
-              TareasCompanion(
-            id: id,
-            titulo: titulo,
-            descripcion: descripcion,
-            estado: estado,
-            fechaVencimiento: fechaVencimiento,
-            prioridad: prioridad,
-            lugar: lugar,
-            horas: horas,
-            imagenRuta: imagenRuta,
-            finalizada: finalizada,
-            usuarioId: usuarioId,
-          ),
-          createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            required String titulo,
-            required String descripcion,
-            required String estado,
-            required DateTime fechaVencimiento,
-            required String prioridad,
-            required String lugar,
-            required double horas,
-            required String imagenRuta,
-            Value<bool> finalizada = const Value.absent(),
-            required int usuarioId,
-          }) =>
-              TareasCompanion.insert(
-            id: id,
-            titulo: titulo,
-            descripcion: descripcion,
-            estado: estado,
-            fechaVencimiento: fechaVencimiento,
-            prioridad: prioridad,
-            lugar: lugar,
-            horas: horas,
-            imagenRuta: imagenRuta,
-            finalizada: finalizada,
-            usuarioId: usuarioId,
-          ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> titulo = const Value.absent(),
+                Value<String> descripcion = const Value.absent(),
+                Value<String> estado = const Value.absent(),
+                Value<DateTime> fechaVencimiento = const Value.absent(),
+                Value<String> prioridad = const Value.absent(),
+                Value<String> lugar = const Value.absent(),
+                Value<double> horas = const Value.absent(),
+                Value<String> imagenRuta = const Value.absent(),
+                Value<bool> finalizada = const Value.absent(),
+                Value<int> usuarioId = const Value.absent(),
+              }) => TareasCompanion(
+                id: id,
+                titulo: titulo,
+                descripcion: descripcion,
+                estado: estado,
+                fechaVencimiento: fechaVencimiento,
+                prioridad: prioridad,
+                lugar: lugar,
+                horas: horas,
+                imagenRuta: imagenRuta,
+                finalizada: finalizada,
+                usuarioId: usuarioId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String titulo,
+                required String descripcion,
+                required String estado,
+                required DateTime fechaVencimiento,
+                required String prioridad,
+                required String lugar,
+                required double horas,
+                required String imagenRuta,
+                Value<bool> finalizada = const Value.absent(),
+                required int usuarioId,
+              }) => TareasCompanion.insert(
+                id: id,
+                titulo: titulo,
+                descripcion: descripcion,
+                estado: estado,
+                fechaVencimiento: fechaVencimiento,
+                prioridad: prioridad,
+                lugar: lugar,
+                horas: horas,
+                imagenRuta: imagenRuta,
+                finalizada: finalizada,
+                usuarioId: usuarioId,
+              ),
           withReferenceMapper: (p0) => p0
-              .map((e) =>
-                  (e.readTable(table), $$TareasTableReferences(db, table, e)))
+              .map(
+                (e) =>
+                    (e.readTable(table), $$TareasTableReferences(db, table, e)),
+              )
               .toList(),
           prefetchHooksCallback: ({usuarioId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
-              addJoins: <
-                  T extends TableManagerState<
+              addJoins:
+                  <
+                    T extends TableManagerState<
                       dynamic,
                       dynamic,
                       dynamic,
@@ -1265,40 +1465,48 @@ class $$TareasTableTableManager extends RootTableManager<
                       dynamic,
                       dynamic,
                       dynamic,
-                      dynamic>>(state) {
-                if (usuarioId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.usuarioId,
-                    referencedTable:
-                        $$TareasTableReferences._usuarioIdTable(db),
-                    referencedColumn:
-                        $$TareasTableReferences._usuarioIdTable(db).id,
-                  ) as T;
-                }
+                      dynamic
+                    >
+                  >(state) {
+                    if (usuarioId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.usuarioId,
+                                referencedTable: $$TareasTableReferences
+                                    ._usuarioIdTable(db),
+                                referencedColumn: $$TareasTableReferences
+                                    ._usuarioIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
 
-                return state;
-              },
+                    return state;
+                  },
               getPrefetchedDataCallback: (items) async {
                 return [];
               },
             );
           },
-        ));
+        ),
+      );
 }
 
-typedef $$TareasTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $TareasTable,
-    Tarea,
-    $$TareasTableFilterComposer,
-    $$TareasTableOrderingComposer,
-    $$TareasTableAnnotationComposer,
-    $$TareasTableCreateCompanionBuilder,
-    $$TareasTableUpdateCompanionBuilder,
-    (Tarea, $$TareasTableReferences),
-    Tarea,
-    PrefetchHooks Function({bool usuarioId})>;
+typedef $$TareasTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TareasTable,
+      Tarea,
+      $$TareasTableFilterComposer,
+      $$TareasTableOrderingComposer,
+      $$TareasTableAnnotationComposer,
+      $$TareasTableCreateCompanionBuilder,
+      $$TareasTableUpdateCompanionBuilder,
+      (Tarea, $$TareasTableReferences),
+      Tarea,
+      PrefetchHooks Function({bool usuarioId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;

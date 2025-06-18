@@ -138,7 +138,7 @@ void main() async {
 
   final handler = const Pipeline()
       .addMiddleware(logRequests())
-      .addMiddleware(corsMiddleware()) // 👈 Importante para evitar error CORS
+      .addMiddleware(corsMiddleware()) // 
       .addHandler(router);
 
   final server = await io.serve(handler, InternetAddress.anyIPv4, 8080);

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'crear_tarea_page.dart'; // Asegúrate de importar correctamente
+import 'package:drift/drift.dart' show Value;
+import 'package:taller_flutter/backend/backend.dart';
+import 'package:taller_flutter/backend/db.dart';
+import 'crear_tarea_page.dart';
 
 class TareasPage extends StatefulWidget {
   const TareasPage({super.key});
@@ -9,46 +12,18 @@ class TareasPage extends StatefulWidget {
 }
 
 class _TareasPageState extends State<TareasPage> {
-  List<Map<String, dynamic>> tareas = [
-    {
-      'id': 1,
-      'titulo': 'Diseñar Logo',
-      'descripcion': 'Hacer logo para app',
-      'fechaVencimiento': '2025-06-20',
-      'prioridad': 'Alta',
-      'lugar': 'Remoto',
-      'estado': false,
-      'usuarioId': 1,
-      'imagen': '',
-      'horas': 5
-    },
-    {
-      'id': 2,
-      'titulo': 'Crear Base de Datos',
-      'descripcion': 'Modelo inicial y relaciones',
-      'fechaVencimiento': '2025-06-18',
-      'prioridad': 'Media',
-      'lugar': 'UCR',
-      'estado': true,
-      'usuarioId': 2,
-      'imagen': '',
-      'horas': 3
-    }
-  ];
+  late Future<List<Tarea>> _tareasFuture;
+  late Future<List<Usuario>> _usuariosFuture;
 
-  List<Map<String, dynamic>> usuarios = [
-    {'id': 1, 'nombre': 'Mariano'},
-    {'id': 2, 'nombre': 'Valeria'},
-    {'id': 3, 'nombre': 'Jeremy'},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _cargarDatos();
+  }
 
-  void eliminarTarea(int id) {
-    setState(() {
-      tareas.removeWhere((tarea) => tarea['id'] == id);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Tarea eliminada correctamente")),
-    );
+  void _cargarDatos() {
+    _tareasFuture = db.obtenerTareas();
+    _usuariosFuture = db.obtenerUsuarios();
   }
 
   void confirmarEliminacion(int id) {
@@ -63,9 +38,13 @@ class _TareasPageState extends State<TareasPage> {
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              eliminarTarea(id);
+              await db.eliminarTarea(id);
+              setState(_cargarDatos);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Tarea eliminada correctamente")),
+              );
             },
             child: const Text('Eliminar'),
           ),
@@ -74,7 +53,9 @@ class _TareasPageState extends State<TareasPage> {
     );
   }
 
-  void abrirFormulario({Map<String, dynamic>? tarea}) async {
+  void abrirFormulario({Tarea? tarea}) async {
+    final usuarios = await _usuariosFuture;
+
     final resultado = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -85,29 +66,24 @@ class _TareasPageState extends State<TareasPage> {
       ),
     );
 
-    if (resultado != null && resultado is Map<String, dynamic>) {
-      setState(() {
-        if (tarea != null) {
-          // Actualizar
-          final index = tareas.indexWhere((t) => t['id'] == tarea['id']);
-          if (index != -1) tareas[index] = resultado;
-        } else {
-          // Crear nueva tarea
-          final nueva = resultado;
-          nueva['id'] = tareas.isEmpty ? 1 : tareas.last['id'] + 1;
-          tareas.add(nueva);
-        }
-      });
+    if (resultado != null && resultado is TareasCompanion) {
+      if (resultado.id.present) {
+        await db.actualizarTareaPorId(resultado.id.value, resultado);
+      } else {
+        await db.insertarTarea(resultado);
+      }
+
+      setState(_cargarDatos);
     }
   }
 
   Color prioridadColor(String prioridad) {
-    switch (prioridad) {
-      case 'Alta':
+    switch (prioridad.toLowerCase()) {
+      case 'alta':
         return Colors.redAccent;
-      case 'Media':
+      case 'media':
         return Colors.orange;
-      case 'Baja':
+      case 'baja':
         return Colors.green;
       default:
         return Colors.grey;
@@ -137,74 +113,88 @@ class _TareasPageState extends State<TareasPage> {
       body: Container(
         margin: const EdgeInsets.only(top: 80),
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ListView.builder(
-          itemCount: tareas.length,
-          itemBuilder: (context, index) {
-            final tarea = tareas[index];
-            return InkWell(
-              onTap: () => abrirFormulario(tarea: tarea),
-              child: Card(
-                elevation: 8,
-                shadowColor: Colors.deepPurple.withOpacity(0.3),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+        child: FutureBuilder<List<Tarea>>(
+          future: _tareasFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No hay tareas registradas.'));
+            }
+
+            final tareas = snapshot.data!;
+            return ListView.builder(
+              itemCount: tareas.length,
+              itemBuilder: (context, index) {
+                final tarea = tareas[index];
+                return InkWell(
+                  onTap: () => abrirFormulario(tarea: tarea),
+                  child: Card(
+                    elevation: 8,
+                    shadowColor: Colors.deepPurple.withOpacity(0.3),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text(
-                              tarea['titulo'],
-                              style: const TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  tarea.titulo,
+                                  style: const TextStyle(
+                                      fontSize: 20, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              Icon(
+                                tarea.finalizada ? Icons.check_circle : Icons.timelapse,
+                                color: tarea.finalizada ? Colors.green : Colors.orange,
+                              ),
+                            ],
                           ),
-                          Icon(
-                            tarea['estado'] ? Icons.check_circle : Icons.timelapse,
-                            color: tarea['estado'] ? Colors.green : Colors.orange,
+                          const SizedBox(height: 10),
+                          Text(tarea.descripcion),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Chip(
+                                label: Text('Prioridad: ${tarea.prioridad}'),
+                                backgroundColor: prioridadColor(tarea.prioridad).withOpacity(0.2),
+                                labelStyle: TextStyle(
+                                  color: prioridadColor(tarea.prioridad),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text("Lugar: ${tarea.lugar}"),
+                            ],
                           ),
+                          const SizedBox(height: 6),
+                          Text("Vence: ${tarea.fechaVencimiento.toLocal().toString().split(' ')[0]}"),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.blueAccent),
+                                onPressed: () => abrirFormulario(tarea: tarea),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => confirmarEliminacion(tarea.id),
+                              ),
+                            ],
+                          )
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      Text(tarea['descripcion']),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Chip(
-                            label: Text('Prioridad: ${tarea['prioridad']}'),
-                            backgroundColor: prioridadColor(tarea['prioridad']).withOpacity(0.2),
-                            labelStyle: TextStyle(
-                              color: prioridadColor(tarea['prioridad']),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text("Lugar: ${tarea['lugar']}"),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text("Vence: ${tarea['fechaVencimiento']}"),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blueAccent),
-                            onPressed: () => abrirFormulario(tarea: tarea),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => confirmarEliminacion(tarea['id']),
-                          ),
-                        ],
-                      )
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             );
           },
         ),

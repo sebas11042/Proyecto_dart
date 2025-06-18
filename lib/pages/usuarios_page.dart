@@ -1,4 +1,8 @@
+
+import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
+import 'package:taller_flutter/backend/backend.dart';
+import 'package:taller_flutter/backend/db.dart';
 
 class UsuariosPage extends StatefulWidget {
   const UsuariosPage({super.key});
@@ -8,19 +12,16 @@ class UsuariosPage extends StatefulWidget {
 }
 
 class _UsuariosPageState extends State<UsuariosPage> {
-  List<Map<String, dynamic>> usuarios = [
-    {'id': 1, 'nombre': 'Mariano'},
-    {'id': 2, 'nombre': 'Valeria'},
-    {'id': 3, 'nombre': 'Jeremy'},
-  ];
+  late Future<List<Usuario>> _usuariosFuture;
 
-  void eliminarUsuario(int id) {
-    setState(() {
-      usuarios.removeWhere((usuario) => usuario['id'] == id);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Usuario eliminado correctamente")),
-    );
+  @override
+  void initState() {
+    super.initState();
+    _cargarUsuarios();
+  }
+
+  void _cargarUsuarios() {
+    _usuariosFuture = db.obtenerUsuarios();
   }
 
   void confirmarEliminacion(int id) {
@@ -35,9 +36,13 @@ class _UsuariosPageState extends State<UsuariosPage> {
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              eliminarUsuario(id);
+              await db.eliminarUsuario(id);
+              setState(_cargarUsuarios);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Usuario eliminado correctamente")),
+              );
             },
             child: const Text('Eliminar'),
           ),
@@ -46,29 +51,46 @@ class _UsuariosPageState extends State<UsuariosPage> {
     );
   }
 
-  void editarUsuario({Map<String, dynamic>? usuario}) async {
-    final resultado = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => FormularioUsuarioPage(usuario: usuario),
+  void mostrarFormularioAgregarUsuario() {
+    final _formKey = GlobalKey<FormState>();
+    final TextEditingController _nombreController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Agregar Usuario'),
+        content: Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _nombreController,
+            decoration: const InputDecoration(labelText: 'Nombre'),
+            validator: (value) => value == null || value.trim().isEmpty
+                ? 'Ingrese un nombre'
+                : null,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                final nombre = _nombreController.text.trim();
+                await db.insertarUsuario(UsuariosCompanion(nombre: Value(nombre)));
+                Navigator.pop(ctx);
+                setState(_cargarUsuarios);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Usuario agregado exitosamente')),
+                );
+              }
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
       ),
     );
-
-    if (resultado != null && resultado is Map<String, dynamic>) {
-      setState(() {
-        if (usuario != null) {
-          // Actualizar
-          final index = usuarios.indexWhere((u) => u['id'] == usuario['id']);
-          if (index != -1) usuarios[index] = resultado;
-        } else {
-          // Crear nuevo
-          usuarios.add({
-            'id': usuarios.isEmpty ? 1 : usuarios.last['id'] + 1,
-            'nombre': resultado['nombre'],
-          });
-        }
-      });
-    }
   }
 
   @override
@@ -93,129 +115,50 @@ class _UsuariosPageState extends State<UsuariosPage> {
       body: Container(
         margin: const EdgeInsets.only(top: 80),
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ListView.builder(
-          itemCount: usuarios.length,
-          itemBuilder: (context, index) {
-            final usuario = usuarios[index];
-            return InkWell(
-              onTap: () => editarUsuario(usuario: usuario),
-              child: Card(
-                elevation: 8,
-                shadowColor: Colors.deepPurple.withOpacity(0.3),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-                  leading: const Icon(Icons.person, size: 30, color: Colors.deepPurple),
-                  title: Text(
-                    usuario['nombre'],
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        child: FutureBuilder<List<Usuario>>(
+          future: _usuariosFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No hay usuarios registrados.'));
+            }
+
+            final usuarios = snapshot.data!;
+            return ListView.builder(
+              itemCount: usuarios.length,
+              itemBuilder: (context, index) {
+                final usuario = usuarios[index];
+                return Card(
+                  elevation: 8,
+                  shadowColor: Colors.deepPurple.withOpacity(0.3),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+                    leading: const Icon(Icons.person, size: 30, color: Colors.deepPurple),
+                    title: Text(
+                      usuario.nombre,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => confirmarEliminacion(usuario.id),
+                    ),
                   ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blueAccent),
-                        onPressed: () => editarUsuario(usuario: usuario),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => confirmarEliminacion(usuario['id']),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                );
+              },
             );
           },
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => editarUsuario(),
+        onPressed: mostrarFormularioAgregarUsuario,
         icon: const Icon(Icons.add),
-        label: const Text('Nuevo Usuario'),
+        label: const Text('Agregar Usuario'),
         backgroundColor: Colors.deepPurple,
-      ),
-    );
-  }
-}
-
-class FormularioUsuarioPage extends StatefulWidget {
-  final Map<String, dynamic>? usuario;
-  const FormularioUsuarioPage({super.key, this.usuario});
-
-  @override
-  State<FormularioUsuarioPage> createState() => _FormularioUsuarioPageState();
-}
-
-class _FormularioUsuarioPageState extends State<FormularioUsuarioPage> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nombreController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nombreController =
-        TextEditingController(text: widget.usuario?['nombre'] ?? '');
-  }
-
-  @override
-  void dispose() {
-    _nombreController.dispose();
-    super.dispose();
-  }
-
-  void guardar() {
-    if (_formKey.currentState!.validate()) {
-      Navigator.pop(context, {
-        'id': widget.usuario?['id'],
-        'nombre': _nombreController.text.trim(),
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final esEdicion = widget.usuario != null;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(esEdicion ? 'Editar Usuario' : 'Nuevo Usuario'),
-        backgroundColor: Colors.orange,
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nombreController,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre del usuario',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Por favor ingrese un nombre';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton.icon(
-                onPressed: guardar,
-                icon: const Icon(Icons.save),
-                label: Text(esEdicion ? 'Actualizar' : 'Guardar'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-              )
-            ],
-          ),
-        ),
       ),
     );
   }
